@@ -33,7 +33,7 @@ exports.createPages = async ({ graphql, actions }) => {
 
   // Create blog posts pages.
   const posts = result.data.allMarkdownRemark.edges
-
+	
   posts.forEach((post, index) => {
     const previous = index === posts.length - 1 ? null : posts[index + 1].node
     const next = index === 0 ? null : posts[index - 1].node
@@ -47,6 +47,30 @@ exports.createPages = async ({ graphql, actions }) => {
       },
     })
   })
+
+	const postsPerPage = 6
+  const numPages = Math.ceil(posts.length / postsPerPage)
+	console.log(numPages)
+  Array.from({ length: numPages }).forEach((_, i) => {
+		const indexPath = i === 0 ? `/` : `/indexpages/${i+1}`
+		const previousIndexPath = i === 0 ? null  : `/indexpages/${i}`
+    const nextIndexPath = i === numPages - 1 ? null : `/indexpages/${i + 2}` ;
+
+		createPage({
+      path: indexPath,
+      component: path.resolve("./src/templates/blog-posts-list.js"),
+      context: {
+        limit: postsPerPage,
+        skip: i * postsPerPage,
+        numPages,
+        currentPage: i + 1,
+				previousIndexPath,
+				nextIndexPath
+      },
+    })
+  });
+
+	
 }
 
 exports.onCreateNode = ({ node, actions, getNode }) => {
