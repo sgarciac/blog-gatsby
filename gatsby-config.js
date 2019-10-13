@@ -1,11 +1,11 @@
 module.exports = {
   siteMetadata: {
-    title: `Gatsby Starter Blog`,
-    author: `Kyle Mathews`,
-    description: `A starter blog demonstrating what Gatsby can do.`,
-    siteUrl: `https://gatsby-starter-blog-demo.netlify.com/`,
+    title: `Crazyrobot Blog`,
+    author: `Sergio`,
+    description: `Notas.`,
+    siteUrl: `http://blog.crazyrobot.net/`,
     social: {
-      twitter: `kylemathews`,
+      twitter: `sgarciac4`,
     },
   },
   plugins: [
@@ -53,19 +53,54 @@ module.exports = {
         //trackingId: `ADD YOUR TRACKING ID HERE`,
       },
     },
-    `gatsby-plugin-feed`,
     {
-      resolve: `gatsby-plugin-manifest`,
-      options: {
-        name: `Gatsby Starter Blog`,
-        short_name: `GatsbyJS`,
+      resolve: `gatsby-plugin-feed`,
+		  options: {
+				feeds: [
+					{
+						serialize: ({ query: { site, allMarkdownRemark } }) => {
+							return allMarkdownRemark.edges.map(edge => {
+								return Object.assign({}, edge.node.frontmatter, {
+									description: edge.node.excerpt,
+									date: edge.node.frontmatter.date,
+									url: site.siteMetadata.siteUrl + edge.node.fields.slug,
+									guid: site.siteMetadata.siteUrl + edge.node.fields.slug,
+									custom_elements: [{ "content:encoded": edge.node.html }],
+								})
+							})
+						},
+						query: `
+              {
+                allMarkdownRemark(
+                  sort: { order: DESC, fields: [frontmatter___date] },
+                ) {
+                  edges {
+                    node {
+                      excerpt
+                      html
+                      fields { slug }
+                      frontmatter {
+                        title
+                        date
+                      }
+                    }
+                  }
+                }
+              }
+            `,
+						output: "/index.xml",
+						title: "CrazyRobot Blog",
+					},
+				],
+				name: `Crazyrobot Blog`,
+        short_name: `Crazyrobot Blog`,
         start_url: `/`,
         background_color: `#ffffff`,
         theme_color: `#663399`,
         display: `minimal-ui`,
         icon: `content/assets/gatsby-icon.png`,
       },
-    },
+		},
     `gatsby-plugin-offline`,
     `gatsby-plugin-react-helmet`,
     {
